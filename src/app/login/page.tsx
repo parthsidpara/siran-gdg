@@ -25,7 +25,13 @@ export default function LoginPage() {
       router.push("/");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed";
-      toast.error(message);
+      if (message.includes("configuration-not-found") || message.includes("operation-not-allowed")) {
+        toast.error(
+          "Firebase Auth not enabled. Go to Firebase Console > Authentication > Sign-in method > Enable Email/Password."
+        );
+      } else {
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
