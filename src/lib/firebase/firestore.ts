@@ -98,10 +98,7 @@ export async function createEvent(data: Omit<Event, "id" | "createdAt">) {
 }
 
 export async function getEvents() {
-  return queryDocs("events", [
-    where("status", "==", "upcoming"),
-    orderBy("date", "asc"),
-  ]);
+  return queryDocs("events", [where("status", "==", "upcoming")]);
 }
 
 export async function getEventsByOrganizer(organizerId: string) {

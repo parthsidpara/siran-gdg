@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getSportEmoji, getSportLabel } from "@/lib/sports";
 import { getCongestionColor, getCongestionLevel, getCongestionEmoji } from "@/lib/crowd";
-import { where, orderBy } from "firebase/firestore";
+import { where } from "firebase/firestore";
 import type { SportCategory, CongestionLevel } from "@/lib/types";
 
 export default function OrganizerDashboard() {
@@ -30,7 +30,7 @@ function DashboardContent() {
 
   useEffect(() => {
     if (!user) return;
-    const unsub = listenToQuery("events", [where("organizerId", "==", user.uid), orderBy("createdAt", "desc")], (data) => {
+    const unsub = listenToQuery("events", [where("organizerId", "==", user.uid)], (data) => {
       setEvents(data);
       setLoading(false);
     });
