@@ -35,19 +35,19 @@ export default function Home() {
   if (user && role) return null;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background via-background to-accent/20 px-4">
       <div className="text-center max-w-2xl">
-        <h1 className="text-5xl font-bold tracking-tight mb-4">
-          <span className="text-primary">சி</span> Siran
+        <h1 className="text-5xl font-semibold tracking-tight mb-3">
+          <span className="text-primary drop-shadow-[0_0_12px_oklch(0.42_0.1_175/0.3)]">சி</span> Siran
         </h1>
-        <p className="text-xl text-muted-foreground mb-2">
+        <p className="text-xl text-muted-foreground mb-1 font-light">
           Smart Crowd Flow for Sporting Events
         </p>
-        <p className="text-muted-foreground mb-8">
+        <p className="text-muted-foreground mb-10">
           Predict arrival patterns, distribute crowds across gates, and eliminate entry chaos
           at large-scale sporting events.
         </p>
-        <div className="flex gap-4 justify-center mb-12">
+        <div className="flex gap-4 justify-center mb-8">
           <Button size="lg" onClick={() => router.push("/register")}>
             Get Started
           </Button>
@@ -55,9 +55,10 @@ export default function Home() {
             Sign In
           </Button>
         </div>
+        <div className="w-16 h-px bg-border mx-auto mb-10" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-          <Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+          <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <CardHeader>
               <CardTitle className="text-lg">🎟️ Participant</CardTitle>
               <CardDescription>
@@ -65,7 +66,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <CardHeader>
               <CardTitle className="text-lg">📋 Organizer</CardTitle>
               <CardDescription>
@@ -73,7 +74,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <CardHeader>
               <CardTitle className="text-lg">🏟️ Venue Owner</CardTitle>
               <CardDescription>
@@ -81,7 +82,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
           </Card>
-          <Card>
+          <Card className="shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
             <CardHeader>
               <CardTitle className="text-lg">🤝 Sponsor</CardTitle>
               <CardDescription>

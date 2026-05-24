@@ -45,11 +45,11 @@ function MyEventsContent() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">My Events</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">My Events</h1>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : registrations.length === 0 ? (
         <Card>
@@ -67,7 +67,7 @@ function MyEventsContent() {
             if (!event) return null;
             return (
               <Link key={reg.id} href={`/participant/event/${reg.eventId}`}>
-                <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+                <Card className="hover:border-primary/30 shadow-sm hover:shadow-md transition-all cursor-pointer">
                   <CardHeader>
                     <div className="flex items-center justify-between mb-1">
                       <Badge>

@@ -55,7 +55,7 @@ function BrowseContent() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">Discover Events</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">Discover Events</h1>
         <p className="text-muted-foreground">Find sporting events near you</p>
       </div>
 
@@ -92,7 +92,7 @@ function BrowseContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : filteredEvents.length === 0 ? (
         <Card>
@@ -104,7 +104,7 @@ function BrowseContent() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event: any) => (
             <Link key={event.id} href={`/participant/event/${event.id}`}>
-              <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
+              <Card className="hover:border-primary/30 shadow-sm hover:shadow-md transition-all cursor-pointer h-full">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-1">
                     <Badge>

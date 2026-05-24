@@ -81,7 +81,7 @@ function EventDetailContent() {
   if (loading || !event) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
       </div>
     );
   }
@@ -110,7 +110,7 @@ function EventDetailContent() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{event.title}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">{event.title}</h1>
           <p className="text-muted-foreground">
             {getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)} · {event.venueName} · {event.date} at {event.time}
           </p>
@@ -121,39 +121,39 @@ function EventDetailContent() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Registrations</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{event.registeredCount || 0}</p>
+            <p className="text-3xl font-bold text-primary">{event.registeredCount || 0}</p>
             <p className="text-xs text-muted-foreground">
               of {event.capacity?.toLocaleString()} capacity
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Arrival Windows</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{Object.keys(arrivalSlots).length}</p>
+            <p className="text-3xl font-bold text-primary">{Object.keys(arrivalSlots).length}</p>
             <p className="text-xs text-muted-foreground">30-min slots with declarations</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Gates</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{Object.keys(gateLoad).length}</p>
+            <p className="text-3xl font-bold text-primary">{Object.keys(gateLoad).length}</p>
             <p className="text-xs text-muted-foreground">Active entry points</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Arrival Projection Chart */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <CardTitle>Arrival Projections (30-min windows)</CardTitle>
         </CardHeader>
@@ -190,7 +190,7 @@ function EventDetailContent() {
       </Card>
 
       {/* Gate Status Controls */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <CardTitle>Gate Load Status</CardTitle>
         </CardHeader>
@@ -199,7 +199,7 @@ function EventDetailContent() {
             {Object.entries(gateLoad).map(([gateId, level]: [string, any]) => {
               const totalForGate = registrations.filter((r) => r.assignedGate === gateId).length;
               return (
-                <div key={gateId} className="border rounded-lg p-3 space-y-2">
+                <div key={gateId} className="border rounded-xl p-4 bg-muted/30 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-sm">{gateId}</span>
                     <span className="text-xs text-muted-foreground">{totalForGate} assigned</span>
@@ -225,13 +225,13 @@ function EventDetailContent() {
       </Card>
 
       {/* Arrivals by Gate & Window */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <CardTitle>Gate × Window Distribution</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-2 pr-4">Window</th>
@@ -263,7 +263,7 @@ function EventDetailContent() {
       </Card>
 
       {venue && venue.gates && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Venue Map</CardTitle>
           </CardHeader>
@@ -278,7 +278,7 @@ function EventDetailContent() {
       )}
 
       {/* Broadcast Instructions */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
           <CardTitle>Broadcast Instructions</CardTitle>
         </CardHeader>
@@ -329,6 +329,7 @@ function EventDetailContent() {
               />
             </div>
             <Button
+              className="cursor-pointer"
               onClick={async () => {
                 if (!broadcastTitle.trim() || !broadcastMsg.trim()) {
                   toast.error("Title and message required");
@@ -364,14 +365,14 @@ function EventDetailContent() {
 
       {/* Past Instructions */}
       {instructions.length > 0 && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Sent Instructions ({instructions.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {[...instructions].reverse().map((inst) => (
-                <div key={inst.id} className="border rounded-lg p-3">
+                <div key={inst.id} className="border rounded-xl p-4 bg-muted/30">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-sm">{inst.title}</span>
                     <Badge

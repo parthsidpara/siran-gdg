@@ -101,9 +101,9 @@ function CreateVenueForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">List a New Venue</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">List a New Venue</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+        <Card className="shadow-sm border-t-2 border-t-primary/15">
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>
             <CardDescription>Venue details that organizers will see</CardDescription>
@@ -187,7 +187,7 @@ function CreateVenueForm() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm border-t-2 border-t-primary/15">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Gates & Entry Points</CardTitle>
@@ -228,7 +228,7 @@ function CreateVenueForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
           {loading ? "Listing venue..." : "List Venue"}
         </Button>
       </form>

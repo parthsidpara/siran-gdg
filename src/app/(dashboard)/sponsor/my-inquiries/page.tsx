@@ -47,7 +47,7 @@ function InquiriesContent() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">My Inquiries</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">My Inquiries</h1>
         <p className="text-muted-foreground">
           {pending.length} pending · {resolved.length} resolved
         </p>
@@ -55,7 +55,7 @@ function InquiriesContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : sponsorships.length === 0 ? (
         <Card>
@@ -67,12 +67,12 @@ function InquiriesContent() {
         <div className="space-y-6">
           {pending.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold mb-3">Awaiting Response ({pending.length})</h2>
+              <h2 className="text-lg font-medium mb-3">Awaiting Response ({pending.length})</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {pending.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id} className="border-yellow-200 dark:border-yellow-800">
+                    <Card key={s.id} className="border-yellow-200 dark:border-yellow-800 shadow-sm">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <Badge variant="outline" className="text-yellow-600">Pending</Badge>
@@ -95,12 +95,12 @@ function InquiriesContent() {
 
           {resolved.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold mb-3">Resolved ({resolved.length})</h2>
+              <h2 className="text-lg font-medium mb-3">Resolved ({resolved.length})</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {resolved.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id}>
+                    <Card key={s.id} className="shadow-sm">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <Badge variant={s.status === "accepted" ? "default" : "destructive"}>

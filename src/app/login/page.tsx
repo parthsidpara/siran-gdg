@@ -42,10 +42,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-accent/10 px-4">
+      <div className="w-full max-w-md">
+      <div className="text-center mb-6"><span className="text-3xl font-semibold"><span className="text-primary">சி</span> Siran</span></div>
+      <Card className="w-full max-w-md shadow-lg border-t-2 border-t-primary/20">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to Siran</CardTitle>
+          <CardTitle className="text-xl font-semibold">Welcome to Siran</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -72,7 +74,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
@@ -84,6 +86,7 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

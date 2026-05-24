@@ -69,7 +69,7 @@ function EventDetailContent() {
   if (loading || !event) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ function EventDetailContent() {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* LIVE EVENT BANNER */}
       {isLive && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4 animate-pulse">
+        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
             <span className="font-bold text-red-700 dark:text-red-400">EVENT IS LIVE</span>
@@ -143,7 +143,7 @@ function EventDetailContent() {
             {event.status}
           </Badge>
         </div>
-        <h1 className="text-2xl font-bold">{event.title}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">{event.title}</h1>
         <p className="text-muted-foreground">
           {event.venueName} · {event.venueCity} · {event.date} at {event.time}
         </p>
@@ -151,7 +151,7 @@ function EventDetailContent() {
 
       {/* REGISTRATION or GATE PASS */}
       {existingReg ? (
-        <Card className={isLive ? "border-green-300 bg-green-50/50 dark:bg-green-950/10" : "border-green-200 bg-green-50 dark:bg-green-950/20"}>
+        <Card className={isLive ? "border-green-300 bg-green-50/50 dark:bg-green-950/10 shadow-sm" : "border-green-200 bg-green-50 dark:bg-green-950/20 shadow-sm"}>
           <CardHeader>
             <CardTitle>{isLive ? "Your Gate Pass" : "You're Registered!"}</CardTitle>
             <CardDescription>
@@ -189,7 +189,7 @@ function EventDetailContent() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Register for Event</CardTitle>
             <CardDescription>Select your expected arrival time to get the best gate recommendation</CardDescription>
@@ -217,7 +217,7 @@ function EventDetailContent() {
 
       {/* Expected Crowd Timeline (visible to registered participants) */}
       {existingReg && Object.keys(arrivalSlots).length > 0 && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Expected Crowd Timeline</CardTitle>
             <CardDescription>Projected attendance per arrival window</CardDescription>
@@ -233,7 +233,7 @@ function EventDetailContent() {
                     </span>
                     <span className="text-muted-foreground">{count} arriving</span>
                   </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                  <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -251,7 +251,7 @@ function EventDetailContent() {
 
       {/* Organizer Broadcast Instructions */}
       {instructions.length > 0 && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Megaphone className="h-5 w-5" /> Organizer Updates
@@ -278,7 +278,7 @@ function EventDetailContent() {
       )}
 
       {event.description && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader><CardTitle>About this event</CardTitle></CardHeader>
           <CardContent><p className="text-muted-foreground">{event.description}</p></CardContent>
         </Card>
@@ -286,7 +286,7 @@ function EventDetailContent() {
 
       {/* Gate Congestion Status */}
       {venueGates.length > 0 && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Gate Congestion Status</CardTitle>
             <CardDescription>{isLive ? "Live" : "Current"} gate load levels</CardDescription>
@@ -298,7 +298,7 @@ function EventDetailContent() {
                 const isAssigned = existingReg?.assignedGate === gate.id;
                 return (
                   <div key={gate.id}
-                    className={`flex items-center justify-between p-3 border rounded-lg ${isAssigned ? "border-primary ring-2 ring-primary/20" : ""}`}
+                    className={`flex items-center justify-between p-4 border rounded-xl bg-muted/20 ${isAssigned ? "border-primary ring-2 ring-primary/20" : ""}`}
                   >
                     <div>
                       <p className="font-medium">{gate.label} {isAssigned && <Badge className="ml-2 text-xs">Your Gate</Badge>}</p>
@@ -316,7 +316,7 @@ function EventDetailContent() {
       )}
 
       {venue && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader><CardTitle>Venue Map & Gates</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <VenueMap

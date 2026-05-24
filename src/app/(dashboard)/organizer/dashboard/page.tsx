@@ -43,30 +43,30 @@ function DashboardContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Monitor your events and crowd flow</p>
         </div>
-        <Button onClick={() => router.push("/organizer/events/create")}>Create Event</Button>
+        <Button className="cursor-pointer" onClick={() => router.push("/organizer/events/create")}>Create Event</Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Total Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{events.length}</p>
+            <p className="text-3xl font-bold text-primary">{events.length}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Total Registrations</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{totalRegistrations}</p>
+            <p className="text-3xl font-bold text-primary">{totalRegistrations}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border-l-4 border-l-primary/70 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">Sport Categories</CardTitle>
           </CardHeader>
@@ -80,14 +80,14 @@ function DashboardContent() {
         </Card>
       </div>
 
-      <h2 className="text-lg font-semibold mb-4">Your Events</h2>
+      <h2 className="text-lg font-medium mb-4">Your Events</h2>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : events.length === 0 ? (
-        <Card>
+        <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center py-12">
             <p className="text-muted-foreground mb-4">No events created yet</p>
             <Button onClick={() => router.push("/organizer/events/create")}>
@@ -101,7 +101,7 @@ function DashboardContent() {
             const perGateLoad = event.gateLoad || {};
             return (
               <Link key={event.id} href={`/organizer/events/${event.id}`}>
-                <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
+                <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full shadow-sm hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <Badge>{getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)}</Badge>

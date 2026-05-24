@@ -38,15 +38,15 @@ function VenuesContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">My Venues</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">My Venues</h1>
           <p className="text-muted-foreground">Manage your listed venues</p>
         </div>
-        <Button onClick={() => router.push("/venue-owner/venues/create")}>Add Venue</Button>
+        <Button className="cursor-pointer" onClick={() => router.push("/venue-owner/venues/create")}>Add Venue</Button>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : venues.length === 0 ? (
         <Card>
@@ -61,7 +61,7 @@ function VenuesContent() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {venues.map((v: any) => (
             <Link key={v.id} href={`/venue-owner/venues/${v.id}`}>
-              <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
+              <Card className="hover:border-primary/30 shadow-sm hover:shadow-md transition-all cursor-pointer h-full">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     {v.sportTypes?.map((s: SportCategory) => (

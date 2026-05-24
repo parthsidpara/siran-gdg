@@ -95,9 +95,9 @@ function CreateEventForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Create New Event</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-6">Create New Event</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+        <Card className="shadow-sm border-t-2 border-t-primary/15">
           <CardHeader>
             <CardTitle>Event Details</CardTitle>
             <CardDescription>Basic information about your event</CardDescription>
@@ -184,7 +184,7 @@ function CreateEventForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
           {loading ? "Creating event..." : "Create Event"}
         </Button>
       </form>

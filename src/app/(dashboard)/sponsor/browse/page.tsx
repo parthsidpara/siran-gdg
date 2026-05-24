@@ -86,7 +86,7 @@ function SponsorBrowseContent() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">Discover Sponsorship Opportunities</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">Discover Sponsorship Opportunities</h1>
         <p className="text-muted-foreground">Find events to sponsor across India</p>
       </div>
 
@@ -123,7 +123,7 @@ function SponsorBrowseContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : filteredEvents.length === 0 ? (
         <Card>
@@ -134,7 +134,7 @@ function SponsorBrowseContent() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event: any) => (
-            <Card key={event.id} className="h-full">
+            <Card key={event.id} className="shadow-sm hover:shadow-md transition-shadow h-full">
               <CardHeader>
                 <div className="flex items-center justify-between mb-1">
                   <Badge>
@@ -173,7 +173,7 @@ function SponsorBrowseContent() {
                     render={
                       <Button
                         variant="outline"
-                        className="w-full"
+                        className="w-full cursor-pointer"
                         onClick={() => {
                           setSelectedEvent(event);
                           setDialogOpen(true);

@@ -32,7 +32,7 @@ function VenueDetailContent() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
       </div>
     );
   }
@@ -42,12 +42,12 @@ function VenueDetailContent() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold mb-1">{venue.name}</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">{venue.name}</h1>
         <p className="text-muted-foreground">{venue.city} · {venue.address}</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Details</CardTitle>
           </CardHeader>
@@ -79,14 +79,14 @@ function VenueDetailContent() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Gates ({venue.gates?.length || 0})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {venue.gates?.map((g: Gate) => (
-                <div key={g.id} className="flex items-center gap-2 p-2 rounded border">
+                <div key={g.id} className="flex items-center gap-2 p-3 rounded-xl border bg-muted/20">
                   <span className="font-medium text-sm">{g.label}</span>
                   <Badge variant="secondary" className="text-xs">{g.zone}</Badge>
                 </div>
@@ -100,7 +100,7 @@ function VenueDetailContent() {
       </div>
 
       {venue.description && (
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>About</CardTitle>
           </CardHeader>

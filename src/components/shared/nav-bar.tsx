@@ -63,9 +63,9 @@ export function NavBar() {
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <Link href="/" className="flex items-center gap-2 font-semibold text-lg tracking-tight">
           <span className="text-primary">சி</span> Siran
         </Link>
 
@@ -75,7 +75,7 @@ export function NavBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-primary after:transition-all after:duration-200"
               >
                 {item.label}
               </Link>
@@ -85,7 +85,7 @@ export function NavBar() {
 
         {user && role && (
           <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary">
               {ROLE_LABELS[role]}
             </Badge>
             <DropdownMenu>

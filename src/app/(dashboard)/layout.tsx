@@ -16,11 +16,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <NavBar />
       {!isConfigured && (
-        <div className="container mx-auto px-4 pt-4">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 pt-4">
           <FirebaseStatus />
         </div>
       )}
-      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+      <main className="flex-1 container mx-auto max-w-7xl px-4 sm:px-6 py-8">{children}</main>
     </>
   );
 }
