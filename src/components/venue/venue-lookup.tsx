@@ -10,7 +10,7 @@ import { fullVenueLookup } from "@/lib/api/venues";
 import { getCircuitVenueImage } from "@/lib/api/ergast";
 import { suggestGatesForCircuit, suggestGatesForStadium, guessCity } from "@/lib/api/venues";
 import type { VenueEnrichment, ApiSearchResult } from "@/lib/api/types";
-import type { SportCategory, Gate, City } from "@/lib/types";
+import type { SportCategory, Gate } from "@/lib/types";
 import { getSportEmoji } from "@/lib/sports";
 import { Search, Database, Loader2, Check, MapPin, X } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator";
 interface VenueLookupProps {
   onFillData: (data: {
     name: string;
-    city: City | "";
+    city: string;
     capacity: string;
     surface: string;
     description: string;
@@ -89,7 +89,7 @@ export function VenueLookup({ onFillData }: VenueLookupProps) {
 
     onFillData({
       name: enrichment.name || "",
-      city: guessedCity || "",
+      city: guessedCity || enrichment.city || "",
       capacity: enrichment.capacity?.toString() || "",
       surface: enrichment.surface || "",
       description: enrichment.description || "",
@@ -104,9 +104,10 @@ export function VenueLookup({ onFillData }: VenueLookupProps) {
   };
 
   const handleApplyFromSearch = (result: ApiSearchResult) => {
+    const matchedCity = guessCity(result.city) || result.city;
     onFillData({
       name: result.name,
-      city: guessCity(result.city) || "",
+      city: matchedCity,
       capacity: result.capacity?.toString() || "",
       surface: "",
       description: `${result.name} in ${result.city}, ${result.country}`,

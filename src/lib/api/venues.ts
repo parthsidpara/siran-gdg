@@ -102,9 +102,45 @@ export function suggestGatesForStadium(): Gate[] {
   ];
 }
 
-export function guessCity(cityName: string): City | undefined {
-  const lower = cityName.toLowerCase();
-  return CITIES.find((c) => lower.includes(c.toLowerCase()));
+export function guessCity(cityName: string): string | undefined {
+  if (!cityName) return undefined;
+  const lower = cityName.toLowerCase().trim();
+
+  // Try exact match first
+  const exact = CITIES.find(
+    (c) => c.toLowerCase() === lower
+  );
+  if (exact) return exact;
+
+  // Try: our city name contains the API city name
+  const containsExact = CITIES.find(
+    (c) => c.toLowerCase().includes(lower)
+  );
+  if (containsExact) return containsExact;
+
+  // Try: API city contains our city name
+  const containsOur = CITIES.find(
+    (c) => lower.includes(c.toLowerCase())
+  );
+  if (containsOur) return containsOur;
+
+  // Try word-level matching (split on space/comma)
+  const words = lower.split(/[\s,]+/).filter(w => w.length > 2);
+  for (const word of words) {
+    const match = CITIES.find(
+      (c) => c.toLowerCase() === word || c.toLowerCase().includes(word)
+    );
+    if (match) return match;
+  }
+
+  // Levenshtein-ish: check first 4 chars
+  const prefix = lower.slice(0, 4);
+  const fuzzy = CITIES.find(
+    (c) => c.toLowerCase().slice(0, 4) === prefix
+  );
+  if (fuzzy) return fuzzy;
+
+  return undefined;
 }
 
 export interface VenueLookupResult {

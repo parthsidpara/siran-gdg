@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { VenueLookup } from "@/components/venue/venue-lookup";
-import { SPORTS, CITIES, type SportCategory, type City } from "@/lib/types";
+import { SPORTS, CITIES, type SportCategory } from "@/lib/types";
 import { getSportLabel, getSportEmoji } from "@/lib/sports";
 import { Plus, Trash2 } from "lucide-react";
 import type { Gate } from "@/lib/types";
@@ -40,7 +40,7 @@ function CreateVenueForm() {
   const [name, setName] = useState("");
   const [sportTypes, setSportTypes] = useState<SportCategory[]>([]);
   const [capacity, setCapacity] = useState("");
-  const [city, setCity] = useState<City | "">("");
+  const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [surface, setSurface] = useState("");
   const [description, setDescription] = useState("");
@@ -101,7 +101,7 @@ function CreateVenueForm() {
   };
 
   const handleLookupFill = (data: {
-    name: string; city: City | ""; capacity: string;
+    name: string; city: string; capacity: string;
     surface: string; description: string; sportTypes: SportCategory[];
     gates: Gate[]; lat: number; lng: number;
   }) => {
@@ -187,7 +187,7 @@ function CreateVenueForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="city">City *</Label>
-              <Select value={city} onValueChange={(v) => setCity((v || "") as City)}>
+              <Select value={city} onValueChange={(v) => setCity(v || "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select city" />
                 </SelectTrigger>
