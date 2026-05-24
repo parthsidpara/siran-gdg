@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -96,10 +97,12 @@ export function NavBar() {
                 }
               />
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                  <p className="text-sm font-medium">{user.displayName || "User"}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>
+                    <p className="text-sm font-medium">{user.displayName || "User"}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
