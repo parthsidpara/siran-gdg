@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { VenueMap } from "@/components/venue/venue-map";
+import { GatePinner } from "@/components/venue/gate-pinner";
 import {
   assignGate,
   getCongestionLabel,
@@ -243,14 +245,21 @@ function EventDetailContent() {
       {venue && (
         <Card>
           <CardHeader>
-            <CardTitle>Venue Info</CardTitle>
+            <CardTitle>Venue Map & Gates</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">{venue.description}</p>
-            <div className="flex gap-2 mt-3">
+          <CardContent className="space-y-4">
+            <VenueMap
+              center={[venue.lat || 12.9716, venue.lng || 77.5946]}
+              gates={venueGates}
+              gateLoad={gateLoad}
+              assignedGate={existingReg?.assignedGate}
+            />
+            <p className="text-sm text-muted-foreground">{venue.description}</p>
+            <div className="flex gap-2">
               <Badge variant="outline">{venue.surface}</Badge>
               <Badge variant="outline">{venue.capacity?.toLocaleString()} capacity</Badge>
             </div>
+            <GatePinner gates={venueGates} />
           </CardContent>
         </Card>
       )}

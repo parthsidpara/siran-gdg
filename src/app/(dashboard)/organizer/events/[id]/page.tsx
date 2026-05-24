@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/shared/role-guard";
-import { listenToDoc, getRegistrationsByEvent } from "@/lib/firebase/firestore";
+import { listenToDoc, getRegistrationsByEvent, getDocById } from "@/lib/firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { VenueMap } from "@/components/venue/venue-map";
 import {
   getCongestionLabel,
   getCongestionEmoji,
@@ -30,11 +31,18 @@ function EventDetailContent() {
   const { id } = useParams();
   const [event, setEvent] = useState<any>(null);
   const [registrations, setRegistrations] = useState<any[]>([]);
+  const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = listenToDoc("events", id as string, (data) => {
-      setEvent(data);
+    const unsub = listenToDoc("events", id as string, async (data) => {
+      if (data) {
+        setEvent(data);
+        if (data.venueId) {
+          const v = await getDocById("venues", data.venueId);
+          setVenue(v);
+        }
+      }
       setLoading(false);
     });
     return () => unsub();
@@ -58,10 +66,6 @@ function EventDetailContent() {
       </div>
     );
   }
-
-  const venue = event.venue
-    ? event.venue
-    : null;
 
   const hour = event.time ? parseInt(event.time.split(":")[0]) : 17;
   const arrivalWindows = generateArrivalWindows(
@@ -238,6 +242,21 @@ function EventDetailContent() {
           </div>
         </CardContent>
       </Card>
+
+      {venue && venue.gates && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Venue Map</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <VenueMap
+              center={[venue.lat || 12.9716, venue.lng || 77.5946]}
+              gates={venue.gates}
+              gateLoad={gateLoad}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
