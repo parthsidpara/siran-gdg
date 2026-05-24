@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { VenueLookup } from "@/components/venue/venue-lookup";
 import { SPORTS, CITIES, type SportCategory, type City } from "@/lib/types";
 import { getSportLabel, getSportEmoji } from "@/lib/sports";
 import { Plus, Trash2 } from "lucide-react";
@@ -99,10 +100,31 @@ function CreateVenueForm() {
     }
   };
 
+  const handleLookupFill = (data: {
+    name: string; city: City | ""; capacity: string;
+    surface: string; description: string; sportTypes: SportCategory[];
+    gates: Gate[]; lat: number; lng: number;
+  }) => {
+    if (data.name) setName(data.name);
+    if (data.city) setCity(data.city);
+    if (data.capacity) setCapacity(data.capacity);
+    if (data.surface) setSurface(data.surface);
+    if (data.description) setDescription(data.description);
+    if (data.sportTypes.length > 0) setSportTypes(data.sportTypes);
+    if (data.gates.length > 0) {
+      setGates(data.gates.map(g => ({
+        label: g.label, x: g.x, y: g.y, zone: g.zone,
+      })));
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-semibold tracking-tight mb-6">List a New Venue</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <h1 className="text-2xl font-bold mb-6">List a New Venue</h1>
+
+      <VenueLookup onFillData={handleLookupFill} />
+
+      <form onSubmit={handleSubmit} className="space-y-6 mt-6">
         <Card className="shadow-sm border-t-2 border-t-primary/15">
           <CardHeader>
             <CardTitle>Basic Info</CardTitle>

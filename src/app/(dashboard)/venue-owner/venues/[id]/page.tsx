@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/shared/role-guard";
-import { getDocById } from "@/lib/firebase/firestore";
+import { getDocById, updateDocById } from "@/lib/firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getSportLabel, getSportEmoji } from "@/lib/sports";
+import { enrichVenue } from "@/lib/api/venues";
+import { toast } from "sonner";
+import { Loader2, ExternalLink } from "lucide-react";
 import type { SportCategory, Gate } from "@/lib/types";
 
 export default function VenueDetailPage() {
@@ -21,6 +25,7 @@ function VenueDetailContent() {
   const { id } = useParams();
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [enriching, setEnriching] = useState(false);
 
   useEffect(() => {
     getDocById("venues", id as string).then((v) => {
@@ -39,11 +44,55 @@ function VenueDetailContent() {
 
   if (!venue) return <p>Venue not found</p>;
 
+  const handleEnrich = async () => {
+    setEnriching(true);
+    try {
+      const enriched = await enrichVenue(venue.name, venue.sportTypes?.[0]);
+      if (enriched && enriched.name) {
+        const updates: Record<string, unknown> = {};
+        if (enriched.description && !venue.description) updates.description = enriched.description;
+        if (enriched.capacity && !venue.capacity) updates.capacity = enriched.capacity;
+        if (enriched.surface && !venue.surface) updates.surface = enriched.surface;
+        if (enriched.lat && !venue.lat) updates.lat = enriched.lat;
+        if (enriched.lng && !venue.lng) updates.lng = enriched.lng;
+
+        if (Object.keys(updates).length > 0) {
+          await updateDocById("venues", id as string, updates);
+          setVenue({ ...venue, ...updates });
+          toast.success(`Enriched with ${enriched.source} data!`);
+        } else {
+          toast.info("Venue already has complete data");
+        }
+      } else {
+        toast.error("No enrichment data found for this venue");
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Enrichment failed");
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight mb-1">{venue.name}</h1>
-        <p className="text-muted-foreground">{venue.city} · {venue.address}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-1">{venue.name}</h1>
+          <p className="text-muted-foreground">{venue.city} · {venue.address}</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleEnrich}
+          disabled={enriching}
+        >
+          {enriching ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+          ) : (
+            <ExternalLink className="h-4 w-4 mr-1" />
+          )}
+          Enrich Data
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

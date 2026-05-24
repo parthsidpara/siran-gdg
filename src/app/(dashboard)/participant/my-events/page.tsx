@@ -54,7 +54,7 @@ function MyEventsContent() {
       ) : registrations.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground mb-4">You haven't registered for any events yet</p>
+            <p className="text-muted-foreground mb-4">You haven&apos;t registered for any events yet</p>
             <Link href="/participant/browse">
               <Badge className="cursor-pointer hover:bg-primary/90 px-4 py-2">Browse Events</Badge>
             </Link>
