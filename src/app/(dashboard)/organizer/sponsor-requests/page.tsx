@@ -6,14 +6,14 @@ import { RoleGuard } from "@/components/shared/role-guard";
 import { queryDocs } from "@/lib/firebase/firestore";
 import { updateSponsorshipStatus } from "@/lib/firebase/messaging";
 import { getEventsByOrganizer } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 import { where, orderBy } from "firebase/firestore";
+import { Loader2, Inbox } from "lucide-react";
 
 export default function SponsorRequestsPage() {
   return (
@@ -70,71 +70,69 @@ function RequestsContent() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">Sponsor Requests</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight">Sponsor Requests</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           {pending.length} pending · {resolved.length} resolved
         </p>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : sponsorships.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground">No sponsor requests yet</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 p-4 flex flex-col items-center py-12">
+          <Inbox className="h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-sm text-muted-foreground mb-3">No sponsor requests yet</p>
+          <Button size="sm" className="h-9 text-sm" onClick={() => window.location.reload()}>
+            Refresh
+          </Button>
+        </div>
       ) : (
         <div className="space-y-6">
           {pending.length > 0 && (
             <div>
-              <h2 className="text-lg font-medium mb-3">Pending ({pending.length})</h2>
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">Pending ({pending.length})</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {pending.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id} className="border-yellow-200 dark:border-yellow-800 shadow-sm">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-yellow-600">
-                            Pending
-                          </Badge>
-                          {evt && (
-                            <Badge>{getSportEmoji(evt.sportCategory)} {getSportLabel(evt.sportCategory)}</Badge>
-                          )}
+                    <div key={s.id} className="rounded-xl border border-border/50 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge variant="outline" className="text-yellow-600">
+                          Pending
+                        </Badge>
+                        {evt && (
+                          <Badge>{getSportLabel(evt.sportCategory)}</Badge>
+                        )}
+                      </div>
+                      <h3 className="text-base font-medium mb-1">
+                        {evt ? evt.title : "Unknown Event"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {evt ? `${evt.venueName} · ${evt.date}` : ""}
+                      </p>
+                      <div className="space-y-3">
+                        <p className="text-sm bg-muted/40 p-2 rounded-md">{s.message}</p>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="h-9 text-sm"
+                            onClick={() => handleAction(s.id, "accepted")}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="h-9 text-sm"
+                            onClick={() => handleAction(s.id, "declined")}
+                          >
+                            Decline
+                          </Button>
                         </div>
-                        <CardTitle className="text-lg">
-                          {evt ? evt.title : "Unknown Event"}
-                        </CardTitle>
-                        <CardDescription>
-                          {evt ? `${evt.venueName} · ${evt.date}` : ""}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <p className="text-sm bg-muted p-2 rounded">{s.message}</p>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              className="cursor-pointer"
-                              onClick={() => handleAction(s.id, "accepted")}
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="cursor-pointer"
-                              onClick={() => handleAction(s.id, "declined")}
-                            >
-                              Decline
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -143,29 +141,25 @@ function RequestsContent() {
 
           {resolved.length > 0 && (
             <div>
-              <h2 className="text-lg font-medium mb-3">Resolved ({resolved.length})</h2>
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">Resolved ({resolved.length})</h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {resolved.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id} className="shadow-sm">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <Badge
-                            variant={s.status === "accepted" ? "default" : "destructive"}
-                          >
-                            {s.status}
-                          </Badge>
-                          {evt && (
-                            <Badge variant="outline">{getSportEmoji(evt.sportCategory)}</Badge>
-                          )}
-                        </div>
-                        <CardTitle className="text-lg">{evt?.title || "Unknown Event"}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">{s.message}</p>
-                      </CardContent>
-                    </Card>
+                    <div key={s.id} className="rounded-xl border border-border/50 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge
+                          variant={s.status === "accepted" ? "default" : "destructive"}
+                        >
+                          {s.status}
+                        </Badge>
+                        {evt && (
+                          <Badge variant="outline">{getSportLabel(evt.sportCategory)}</Badge>
+                        )}
+                      </div>
+                      <h3 className="text-base font-medium mb-1">{evt?.title || "Unknown Event"}</h3>
+                      <p className="text-sm text-muted-foreground">{s.message}</p>
+                    </div>
                   );
                 })}
               </div>

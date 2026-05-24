@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { getEvents, sendSponsorshipInquiry } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 import { SPORTS, type SportCategory } from "@/lib/types";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, Loader2, Inbox } from "lucide-react";
 
 export default function SponsorBrowsePage() {
   return (
@@ -84,18 +83,18 @@ function SponsorBrowseContent() {
   };
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="space-y-6">
+      <div>
         <h1 className="text-3xl font-semibold tracking-tight mb-1">Discover Sponsorship Opportunities</h1>
         <p className="text-muted-foreground">Find events to sponsor across India</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             placeholder="Search by event, city, sport..."
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm pl-9"
+            className="flex h-9 w-full rounded-md border border-border/50 bg-transparent px-3 py-1 text-sm pl-9 outline-none focus:ring-1 focus:ring-ring"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -104,6 +103,7 @@ function SponsorBrowseContent() {
           <Button
             variant={sportFilter === "all" ? "default" : "outline"}
             size="sm"
+            className="h-9"
             onClick={() => setSportFilter("all")}
           >
             All
@@ -113,9 +113,10 @@ function SponsorBrowseContent() {
               key={sport}
               variant={sportFilter === sport ? "default" : "outline"}
               size="sm"
+              className="h-9"
               onClick={() => setSportFilter(sport)}
             >
-              {getSportEmoji(sport)}
+              {getSportLabel(sport)}
             </Button>
           ))}
         </div>
@@ -123,91 +124,85 @@ function SponsorBrowseContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : filteredEvents.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground">No events found</p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Inbox className="h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">No events found</p>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event: any) => (
-            <Card key={event.id} className="shadow-sm hover:shadow-md transition-shadow h-full">
-              <CardHeader>
-                <div className="flex items-center justify-between mb-1">
-                  <Badge>
-                    {getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)}
-                  </Badge>
-                  <Badge variant="outline">{event.venueCity}</Badge>
+            <div key={event.id} className="rounded-xl border border-border/50 p-4 bg-card hover:border-border transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <Badge variant="secondary">{getSportLabel(event.sportCategory)}</Badge>
+                <Badge variant="outline">{event.venueCity}</Badge>
+              </div>
+              <h3 className="text-lg font-semibold leading-tight mb-1">{event.title}</h3>
+              <p className="text-sm text-muted-foreground mb-3">
+                {event.venueName} &middot; {event.date} at {event.time}
+              </p>
+              <div className="text-sm text-muted-foreground space-y-1.5 mb-4">
+                <div className="flex justify-between">
+                  <span>Registrations</span>
+                  <span className="font-medium">
+                    {event.registeredCount || 0} / {event.capacity?.toLocaleString()}
+                  </span>
                 </div>
-                <CardTitle className="text-lg">{event.title}</CardTitle>
-                <CardDescription>
-                  {event.venueName} · {event.date} at {event.time}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground space-y-2 mb-4">
-                  <div className="flex justify-between">
-                    <span>Registrations</span>
-                    <span className="font-medium">
-                      {event.registeredCount || 0} / {event.capacity?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Fill Rate</span>
-                    <span className="font-medium">
-                      {event.capacity
-                        ? Math.round(((event.registeredCount || 0) / event.capacity) * 100)
-                        : 0}
-                      %
-                    </span>
-                  </div>
+                <div className="flex justify-between">
+                  <span>Fill Rate</span>
+                  <span className="font-medium">
+                    {event.capacity
+                      ? Math.round(((event.registeredCount || 0) / event.capacity) * 100)
+                      : 0}
+                    %
+                  </span>
                 </div>
-                <Dialog open={dialogOpen && selectedEvent?.id === event.id} onOpenChange={(open) => {
-                  setDialogOpen(open);
-                  if (!open) setSelectedEvent(null);
-                }}>
-                  <DialogTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        className="w-full cursor-pointer"
-                        onClick={() => {
-                          setSelectedEvent(event);
-                          setDialogOpen(true);
-                        }}
-                      >
-                        Contact Organizer
-                      </Button>
-                    }
-                  />
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Contact Organizer</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm font-medium">{event.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {event.venueName} · Estimated {event.capacity?.toLocaleString()} attendees
-                        </p>
-                      </div>
-                      <Textarea
-                        placeholder="Introduce yourself and describe your sponsorship interest..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        rows={4}
-                      />
-                      <Button onClick={handleInquiry} disabled={sending} className="w-full">
-                        {sending ? "Sending..." : "Send Inquiry"}
-                      </Button>
+              </div>
+              <Dialog open={dialogOpen && selectedEvent?.id === event.id} onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) setSelectedEvent(null);
+              }}>
+                <DialogTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 w-full cursor-pointer"
+                      onClick={() => {
+                        setSelectedEvent(event);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      Contact Organizer
+                    </Button>
+                  }
+                />
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Contact Organizer</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium">{event.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {event.venueName} &middot; Estimated {event.capacity?.toLocaleString()} attendees
+                      </p>
                     </div>
-                  </DialogContent>
-                </Dialog>
-              </CardContent>
-            </Card>
+                    <Textarea
+                      placeholder="Introduce yourself and describe your sponsorship interest..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={4}
+                    />
+                    <Button onClick={handleInquiry} disabled={sending} size="sm" className="h-9 w-full">
+                      {sending ? "Sending..." : "Send Inquiry"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           ))}
         </div>
       )}

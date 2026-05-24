@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { seedAll, seedRegistrations, seedSponsorships, seedInstructions } from "@/lib/seed";
+import { seedAll } from "@/lib/seed";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function SeedPage() {
-  const { user, role } = useAuth();
+  const { user } = useAuth();
   const [seeding, setSeeding] = useState(false);
   const [step, setStep] = useState("");
   const [results, setResults] = useState<string[]>([]);
@@ -58,49 +58,56 @@ export default function SeedPage() {
 
   return (
     <div className="min-h-screen flex items-start justify-center bg-muted/30 px-4 pt-12">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Seed Demo Data</CardTitle>
-          <CardDescription>
+      <div className="w-full max-w-md rounded-xl border border-border/50 bg-card p-6 space-y-5">
+        <div className="space-y-1">
+          <h1 className="text-xl font-semibold tracking-tight">Seed Demo Data</h1>
+          <p className="text-sm text-muted-foreground">
             Populate Firestore with venues, events, registrations, sponsor inquiries, and broadcast instructions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-muted rounded-lg p-3 text-xs space-y-1">
-            <p className="font-medium">This will create:</p>
-            <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
-              <li>4 venues (Wankhede, JLN, Kanteerava, Eden Gardens)</li>
-              <li>4 events across cricket, football, aquatics</li>
-              <li>15-25 registrations per event</li>
-              <li>3 sponsor inquiries</li>
-              <li>5 organizer broadcast instructions</li>
-              <li>Gate load distribution data</li>
-            </ul>
-          </div>
-
-          {results.length > 0 && (
-            <div className="space-y-1">
-              {results.map((r, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm text-green-600">
-                  <span>{r}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {step && (
-            <p className="text-sm text-muted-foreground text-center animate-pulse">{step}</p>
-          )}
-
-          <Button onClick={handleSeedAll} disabled={seeding} className="w-full" size="lg">
-            {seeding ? "Seeding..." : "Seed All Demo Data"}
-          </Button>
-
-          <p className="text-xs text-muted-foreground text-center">
-            Requires Firebase Auth + Firestore configured. Log in as any role first.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="rounded-xl border border-border/50 bg-muted/40 p-3 text-xs space-y-1.5">
+          <p className="font-medium">This will create:</p>
+          <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
+            <li>4 venues (Wankhede, JLN, Kanteerava, Eden Gardens)</li>
+            <li>4 events across cricket, football, aquatics</li>
+            <li>15-25 registrations per event</li>
+            <li>3 sponsor inquiries</li>
+            <li>5 organizer broadcast instructions</li>
+            <li>Gate load distribution data</li>
+          </ul>
+        </div>
+
+        {results.length > 0 && (
+          <div className="space-y-1.5">
+            {results.map((r, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                <Badge variant="outline" className="text-green-600 border-green-200">Done</Badge>
+                <span>{r}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {step && (
+          <p className="text-sm text-muted-foreground text-center animate-pulse">{step}</p>
+        )}
+
+        <Button onClick={handleSeedAll} disabled={seeding} className="w-full" size="sm">
+          {seeding ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Seeding...
+            </span>
+          ) : (
+            "Seed All Demo Data"
+          )}
+        </Button>
+
+        <p className="text-xs text-muted-foreground text-center">
+          Requires Firebase Auth + Firestore configured. Log in as any role first.
+        </p>
+      </div>
     </div>
   );
 }

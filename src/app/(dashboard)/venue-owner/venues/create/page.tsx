@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -20,7 +19,7 @@ import {
 import { toast } from "sonner";
 import { VenueLookup } from "@/components/venue/venue-lookup";
 import { SPORTS, CITIES, type SportCategory } from "@/lib/types";
-import { getSportLabel, getSportEmoji } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 import { Plus, Trash2 } from "lucide-react";
 import type { Gate } from "@/lib/types";
 
@@ -120,23 +119,20 @@ function CreateVenueForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">List a New Venue</h1>
+      <h1 className="text-2xl font-semibold tracking-tight mb-6">List a New Venue</h1>
 
       <VenueLookup onFillData={handleLookupFill} />
 
       <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-        <Card className="shadow-sm border-t-2 border-t-primary/15">
-          <CardHeader>
-            <CardTitle>Basic Info</CardTitle>
-            <CardDescription>Venue details that organizers will see</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Venue Name *</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <div className="rounded-xl border border-border/50 p-5">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Basic Info</h2>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="name" className="text-xs font-medium">Venue Name *</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required className="h-10" />
             </div>
-            <div className="space-y-2">
-              <Label>Sports *</Label>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Sports *</Label>
               <div className="flex flex-wrap gap-2">
                 {SPORTS.map((sport) => (
                   <Button
@@ -144,6 +140,7 @@ function CreateVenueForm() {
                     type="button"
                     variant={sportTypes.includes(sport) ? "default" : "outline"}
                     size="sm"
+                    className="h-9"
                     onClick={() =>
                       setSportTypes(
                         sportTypes.includes(sport)
@@ -152,26 +149,27 @@ function CreateVenueForm() {
                       )
                     }
                   >
-                    {getSportEmoji(sport)} {getSportLabel(sport)}
+                    {getSportLabel(sport)}
                   </Button>
                 ))}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="capacity">Capacity *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="capacity" className="text-xs font-medium">Capacity *</Label>
                 <Input
                   id="capacity"
                   type="number"
                   value={capacity}
                   onChange={(e) => setCapacity(e.target.value)}
                   required
+                  className="h-10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="surface">Surface</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="surface" className="text-xs font-medium">Surface</Label>
                 <Select value={surface} onValueChange={(v) => setSurface(v || "")}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select surface" />
                   </SelectTrigger>
                   <SelectContent>
@@ -185,10 +183,10 @@ function CreateVenueForm() {
                 </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">City *</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="city" className="text-xs font-medium">City *</Label>
               <Select value={city} onValueChange={(v) => setCity(v || "")}>
-                <SelectTrigger>
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select city" />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,35 +196,36 @@ function CreateVenueForm() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
+            <div className="space-y-1.5">
+              <Label htmlFor="address" className="text-xs font-medium">Address</Label>
+              <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-10" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="desc">Description</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="desc" className="text-xs font-medium">Description</Label>
               <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="shadow-sm border-t-2 border-t-primary/15">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Gates & Entry Points</CardTitle>
-              <CardDescription>Mark each gate/entry point for crowd routing</CardDescription>
-            </div>
-            <Button type="button" variant="outline" size="sm" onClick={addGate}>
+        <div className="rounded-xl border border-border/50 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-medium text-muted-foreground">Gates & Entry Points</h2>
+            <Button type="button" variant="outline" size="sm" className="h-9" onClick={addGate}>
               <Plus className="h-4 w-4 mr-1" /> Add Gate
             </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
+          </div>
+          <div className="space-y-3">
             {gates.map((gate, i) => (
               <div key={i} className="flex gap-2 items-start">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium shrink-0 mt-1">
+                  {i + 1}
+                </div>
                 <div className="flex-1 space-y-1">
                   <Input
                     placeholder={`Gate ${i + 1} label`}
                     value={gate.label}
                     onChange={(e) => updateGate(i, "label", e.target.value)}
+                    className="h-10"
                   />
                 </div>
                 <div className="w-24 space-y-1">
@@ -234,12 +233,14 @@ function CreateVenueForm() {
                     placeholder="Zone"
                     value={gate.zone}
                     onChange={(e) => updateGate(i, "zone", e.target.value)}
+                    className="h-10"
                   />
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="icon"
+                  size="sm"
+                  className="h-9 w-9 p-0"
                   onClick={() => removeGate(i)}
                   disabled={gates.length === 1}
                 >
@@ -247,10 +248,10 @@ function CreateVenueForm() {
                 </Button>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
+        <Button type="submit" className="w-full h-9" size="sm" disabled={loading}>
           {loading ? "Listing venue..." : "List Venue"}
         </Button>
       </form>

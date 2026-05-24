@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { getSponsorshipsBySponsor, getDocById } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
+import { Loader2, Inbox } from "lucide-react";
 
 export default function MyInquiriesPage() {
   return (
@@ -45,48 +45,45 @@ function InquiriesContent() {
   const resolved = sponsorships.filter((s) => s.status !== "pending");
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight">My Inquiries</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">My Inquiries</h1>
         <p className="text-muted-foreground">
-          {pending.length} pending · {resolved.length} resolved
+          {pending.length} pending &middot; {resolved.length} resolved
         </p>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : sponsorships.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground">No inquiries sent yet</p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Inbox className="h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-muted-foreground">No inquiries sent yet</p>
+        </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {pending.length > 0 && (
             <div>
-              <h2 className="text-lg font-medium mb-3">Awaiting Response ({pending.length})</h2>
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">
+                Awaiting Response ({pending.length})
+              </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {pending.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id} className="border-yellow-200 dark:border-yellow-800 shadow-sm">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-yellow-600">Pending</Badge>
-                          {evt && (
-                            <Badge>{getSportEmoji(evt.sportCategory)} {getSportLabel(evt.sportCategory)}</Badge>
-                          )}
-                        </div>
-                        <CardTitle className="text-lg">{evt?.title || "Unknown Event"}</CardTitle>
-                        {evt && <CardDescription>{evt.venueName} · {evt.date}</CardDescription>}
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{s.message}</p>
-                      </CardContent>
-                    </Card>
+                    <div key={s.id} className="rounded-xl border border-border/50 p-4 bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant="outline" className="text-yellow-600">Pending</Badge>
+                        {evt && (
+                          <Badge variant="secondary">{getSportLabel(evt.sportCategory)}</Badge>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-semibold leading-tight mb-1">{evt?.title || "Unknown Event"}</h3>
+                      {evt && <p className="text-sm text-muted-foreground mb-3">{evt.venueName} &middot; {evt.date}</p>}
+                      <p className="text-sm text-muted-foreground line-clamp-2">{s.message}</p>
+                    </div>
                   );
                 })}
               </div>
@@ -95,25 +92,23 @@ function InquiriesContent() {
 
           {resolved.length > 0 && (
             <div>
-              <h2 className="text-lg font-medium mb-3">Resolved ({resolved.length})</h2>
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">
+                Resolved ({resolved.length})
+              </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 {resolved.map((s) => {
                   const evt = events[s.eventId];
                   return (
-                    <Card key={s.id} className="shadow-sm">
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <Badge variant={s.status === "accepted" ? "default" : "destructive"}>
-                            {s.status}
-                          </Badge>
-                          {evt && <Badge variant="outline">{getSportEmoji(evt.sportCategory)}</Badge>}
-                        </div>
-                        <CardTitle className="text-lg">{evt?.title || "Unknown Event"}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">{s.message}</p>
-                      </CardContent>
-                    </Card>
+                    <div key={s.id} className="rounded-xl border border-border/50 p-4 bg-card">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant={s.status === "accepted" ? "default" : "destructive"}>
+                          {s.status}
+                        </Badge>
+                        {evt && <Badge variant="secondary">{getSportLabel(evt.sportCategory)}</Badge>}
+                      </div>
+                      <h3 className="text-lg font-semibold leading-tight mb-1">{evt?.title || "Unknown Event"}</h3>
+                      <p className="text-sm text-muted-foreground">{s.message}</p>
+                    </div>
                   );
                 })}
               </div>

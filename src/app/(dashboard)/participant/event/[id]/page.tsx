@@ -6,11 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { listenToDoc, registerForEvent, getRegistrationsByEvent, getDocById } from "@/lib/firebase/firestore";
 import { getInstructionsForEvent } from "@/lib/firebase/instructions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { getSportEmoji, getSportLabel } from "@/lib/sports";
 import { VenueMap } from "@/components/venue/venue-map";
 import { GatePinner } from "@/components/venue/gate-pinner";
@@ -22,8 +18,17 @@ import {
   generateArrivalWindows,
 } from "@/lib/crowd";
 import { toast } from "sonner";
-import { Megaphone, Clock, MapPin, AlertTriangle } from "lucide-react";
-import type { SportCategory, Gate } from "@/lib/types";
+import {
+  Clock,
+  MapPin,
+  AlertTriangle,
+  Megaphone,
+  Ticket,
+  Loader2,
+  Users,
+  Radar,
+} from "lucide-react";
+import type { Gate } from "@/lib/types";
 
 export default function ParticipantEventDetail() {
   return (
@@ -68,8 +73,8 @@ function EventDetailContent() {
 
   if (loading || !event) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -104,236 +109,238 @@ function EventDetailContent() {
   const urgencyInstructions = instructions.filter((i) => i.priority === "urgent");
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* LIVE EVENT BANNER */}
+    <div className="mx-auto max-w-2xl space-y-6">
+      {/* Live Banner */}
       {isLive && (
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-red-500 animate-pulse" />
-            <span className="font-bold text-red-700 dark:text-red-400">EVENT IS LIVE</span>
+        <div className="flex items-center gap-3 rounded-xl border border-red-200/60 bg-red-50/60 p-3.5 dark:border-red-900/30 dark:bg-red-950/20">
+          <span className="relative flex h-3 w-3">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-red-700 dark:text-red-400">Event is live now</p>
+            <p className="text-xs text-red-600/80 dark:text-red-400/70">Follow your assigned gate below.</p>
           </div>
-          <p className="text-sm text-red-600 dark:text-red-300 mt-1">
-            Follow your assigned gate and watch for real-time updates below.
-          </p>
         </div>
       )}
 
-      {/* URGENT INSTRUCTIONS */}
+      {/* Urgent Instructions */}
       {urgencyInstructions.length > 0 && (
-        <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+        <div className="rounded-xl border border-amber-200/60 bg-amber-50/60 p-4 dark:border-amber-900/30 dark:bg-amber-950/20">
           <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-yellow-600" />
-            <span className="font-bold text-yellow-700 dark:text-yellow-400">Urgent Updates</span>
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-800 dark:text-amber-400">Urgent Updates</span>
           </div>
           {urgencyInstructions.map((inst) => (
-            <div key={inst.id} className="text-sm text-yellow-700 dark:text-yellow-300 mb-2">
-              <strong>{inst.title}:</strong> {inst.message}
-            </div>
+            <p key={inst.id} className="text-sm text-amber-800/80 dark:text-amber-400/80">
+              <span className="font-medium">{inst.title}:</span> {inst.message}
+            </p>
           ))}
         </div>
       )}
 
-      {/* Event Header */}
+      {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Badge>
+          <span className="inline-flex items-center gap-1 rounded-md bg-accent/50 px-2 py-0.5 text-xs font-medium text-accent-foreground">
             {getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)}
-          </Badge>
-          <Badge variant={isLive ? "destructive" : event.status === "upcoming" ? "default" : "secondary"}>
-            {event.status}
-          </Badge>
+          </span>
+          {isLive && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+              Live
+            </span>
+          )}
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight">{event.title}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl font-semibold tracking-tight">{event.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           {event.venueName} · {event.venueCity} · {event.date} at {event.time}
         </p>
       </div>
 
-      {/* REGISTRATION or GATE PASS */}
+      {/* Gate Pass / Registration */}
       {existingReg ? (
-        <Card className={isLive ? "border-green-300 bg-green-50/50 dark:bg-green-950/10 shadow-sm" : "border-green-200 bg-green-50 dark:bg-green-950/20 shadow-sm"}>
-          <CardHeader>
-            <CardTitle>{isLive ? "Your Gate Pass" : "You're Registered!"}</CardTitle>
-            <CardDescription>
-              {isLive ? "Head to your assigned gate now" : "Keep this info handy for event day"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> Arrival Window
-                </p>
-                <p className="text-xl font-bold">{existingReg.arrivalWindow}</p>
+        <div className={`rounded-2xl border p-5 ${isLive ? "border-primary/30 bg-primary/[0.03]" : "border-border/50 bg-muted/30"}`}>
+          <div className="flex items-center gap-2 mb-4">
+            <Ticket className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">{isLive ? "Your Gate Pass" : "You're Registered"}</span>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <Clock className="h-3 w-3" /> Arrival Window
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> Assigned Gate
-                </p>
-                <p className="text-xl font-bold text-primary">
-                  {venueGates.find((g) => g.id === existingReg.assignedGate)?.label || existingReg.assignedGate}
-                </p>
-              </div>
+              <p className="text-lg font-semibold tabular-nums">{existingReg.arrivalWindow}</p>
             </div>
-            {isLive && (
-              <div className="mt-4 p-3 bg-background rounded-lg border">
-                <p className="text-sm font-medium">Gate Status</p>
-                <Badge
-                  className={gateLoad[existingReg.assignedGate] === "low" ? "bg-green-500 mt-1" : gateLoad[existingReg.assignedGate] === "medium" ? "bg-yellow-500 mt-1" : "bg-red-500 mt-1"}
-                >
-                  {getCongestionEmoji(gateLoad[existingReg.assignedGate] || "low")}{" "}
-                  {getCongestionLabel(gateLoad[existingReg.assignedGate] || "low")} Crowd
-                </Badge>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <MapPin className="h-3 w-3" /> Assigned Gate
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <p className="text-lg font-semibold text-primary">
+                {venueGates.find((g) => g.id === existingReg.assignedGate)?.label || existingReg.assignedGate}
+              </p>
+            </div>
+          </div>
+          {isLive && (
+            <div className="mt-4 rounded-xl border border-border/50 bg-background/80 p-3">
+              <p className="text-xs font-medium text-muted-foreground mb-1.5">Current Gate Status</p>
+              <CongestionDot level={gateLoad[existingReg.assignedGate] || "low"} />
+            </div>
+          )}
+        </div>
       ) : (
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Register for Event</CardTitle>
-            <CardDescription>Select your expected arrival time to get the best gate recommendation</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Arrival Time Window</Label>
-              <div className="flex flex-wrap gap-2">
-                {arrivalWindows.map((w) => (
-                  <Button key={w} variant={arrivalWindow === w ? "default" : "outline"} size="sm" onClick={() => setArrivalWindow(w)}>
-                    {w}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <Button className="w-full" onClick={handleRegister} disabled={!arrivalWindow || registering}>
-              {registering ? "Registering..." : "Register Now"}
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Early declaration helps us assign the least crowded gate for your arrival.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="rounded-2xl border border-border/50 bg-muted/30 p-5">
+          <h3 className="text-sm font-semibold mb-1">Register for this event</h3>
+          <p className="text-xs text-muted-foreground mb-4">Pick an arrival window. We will assign the least crowded gate.</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {arrivalWindows.map((w) => (
+              <button
+                key={w}
+                onClick={() => setArrivalWindow(w)}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                  arrivalWindow === w
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-background border border-border/50 text-foreground hover:border-border"
+                }`}
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+          <Button size="sm" className="w-full h-9" onClick={handleRegister} disabled={!arrivalWindow || registering}>
+            {registering ? "Registering..." : "Register Now"}
+          </Button>
+        </div>
       )}
 
-      {/* Expected Crowd Timeline (visible to registered participants) */}
+      {/* Crowd Timeline */}
       {existingReg && Object.keys(arrivalSlots).length > 0 && (
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Expected Crowd Timeline</CardTitle>
-            <CardDescription>Projected attendance per arrival window</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Object.entries(arrivalSlots).map(([window, count]: [string, any]) => (
-                <div key={window} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className={window === existingReg.arrivalWindow ? "font-bold text-primary" : ""}>
-                      {window}
-                      {window === existingReg.arrivalWindow && " (You)"}
-                    </span>
-                    <span className="text-muted-foreground">{count} arriving</span>
-                  </div>
-                  <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${Math.min(100, (count / Math.max(...Object.values(arrivalSlots).map(Number), 1)) * 100)}%`,
-                        backgroundColor: window === existingReg.arrivalWindow ? "var(--primary)" : "var(--muted-foreground)",
-                      }}
-                    />
-                  </div>
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Expected Crowd</h3>
+          <div className="space-y-2.5">
+            {Object.entries(arrivalSlots).map(([window, count]: [string, any]) => (
+              <div key={window} className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className={window === existingReg.arrivalWindow ? "font-semibold text-foreground" : "text-muted-foreground"}>
+                    {window} {window === existingReg.arrivalWindow && "· You"}
+                  </span>
+                  <span className="tabular-nums text-muted-foreground">{count}</span>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, (count / Math.max(...Object.values(arrivalSlots).map(Number), 1)) * 100)}%`,
+                      backgroundColor: window === existingReg.arrivalWindow ? "var(--primary)" : "var(--muted-foreground)",
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
-      {/* Organizer Broadcast Instructions */}
+      {/* Instructions */}
       {instructions.length > 0 && (
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Megaphone className="h-5 w-5" /> Organizer Updates
-            </CardTitle>
-            <CardDescription>Important information from the event organizer</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {[...instructions].reverse().map((inst) => (
-                <div key={inst.id} className="border-l-2 pl-3 py-1" style={{
-                  borderLeftColor: inst.priority === "urgent" ? "#ef4444" : inst.priority === "warning" ? "#eab308" : "#6b7280"
-                }}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{inst.title}</span>
-                    <Badge variant={inst.priority === "urgent" ? "destructive" : inst.priority === "warning" ? "default" : "outline"}
-                      className="text-xs">{inst.priority}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{inst.message}</p>
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-1.5">
+            <Megaphone className="h-3.5 w-3.5" /> Organizer Updates
+          </h3>
+          <div className="space-y-2">
+            {[...instructions].reverse().map((inst) => (
+              <div key={inst.id} className="flex items-start gap-3 rounded-xl border border-border/50 p-3">
+                <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
+                  inst.priority === "urgent" ? "bg-red-500" : inst.priority === "warning" ? "bg-amber-500" : "bg-muted-foreground/30"
+                }`} />
+                <div>
+                  <p className="text-sm font-medium">{inst.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{inst.message}</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {event.description && (
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle>About this event</CardTitle></CardHeader>
-          <CardContent><p className="text-muted-foreground">{event.description}</p></CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 p-4">
+          <p className="text-sm font-medium mb-1">About</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
+        </div>
       )}
 
-      {/* Gate Congestion Status */}
+      {/* Gate Status */}
       {venueGates.length > 0 && (
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Gate Congestion Status</CardTitle>
-            <CardDescription>{isLive ? "Live" : "Current"} gate load levels</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {venueGates.map((gate) => {
-                const load = gateLoad[gate.id] || "low";
-                const isAssigned = existingReg?.assignedGate === gate.id;
-                return (
-                  <div key={gate.id}
-                    className={`flex items-center justify-between p-4 border rounded-xl bg-muted/20 ${isAssigned ? "border-primary ring-2 ring-primary/20" : ""}`}
-                  >
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Gate Congestion</h3>
+          <div className="space-y-2">
+            {venueGates.map((gate) => {
+              const load = gateLoad[gate.id] || "low";
+              const isAssigned = existingReg?.assignedGate === gate.id;
+              return (
+                <div
+                  key={gate.id}
+                  className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
+                    isAssigned ? "border-primary/40 bg-primary/[0.02]" : "border-border/40"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {isAssigned && (
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                        You
+                      </span>
+                    )}
                     <div>
-                      <p className="font-medium">{gate.label} {isAssigned && <Badge className="ml-2 text-xs">Your Gate</Badge>}</p>
-                      <p className="text-xs text-muted-foreground">Zone: {gate.zone}</p>
+                      <p className="text-sm font-medium">{gate.label}</p>
+                      <p className="text-[10px] text-muted-foreground">{gate.zone}</p>
                     </div>
-                    <Badge className={load === "low" ? "bg-green-500" : load === "medium" ? "bg-yellow-500" : "bg-red-500"}>
-                      {getCongestionEmoji(load)} {getCongestionLabel(load)}
-                    </Badge>
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  <CongestionDot level={load} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
 
+      {/* Venue Map */}
       {venue && (
-        <Card className="shadow-sm">
-          <CardHeader><CardTitle>Venue Map & Gates</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <VenueMap
-              center={[venue.lat || 12.9716, venue.lng || 77.5946]}
-              gates={venueGates}
-              gateLoad={gateLoad}
-              assignedGate={existingReg?.assignedGate}
-            />
-            <p className="text-sm text-muted-foreground">{venue.description}</p>
-            <div className="flex gap-2">
-              <Badge variant="outline">{venue.surface}</Badge>
-              <Badge variant="outline">{venue.capacity?.toLocaleString()} capacity</Badge>
-            </div>
-            <GatePinner gates={venueGates} />
-          </CardContent>
-        </Card>
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Venue Map</h3>
+          <VenueMap
+            center={[venue.lat || 12.9716, venue.lng || 77.5946]}
+            gates={venueGates}
+            gateLoad={gateLoad}
+            assignedGate={existingReg?.assignedGate}
+          />
+          <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+            <span>{venue.surface}</span>
+            <span className="text-border">·</span>
+            <span>{venue.capacity?.toLocaleString()} capacity</span>
+          </div>
+          <GatePinner gates={venueGates} />
+        </div>
       )}
+    </div>
+  );
+}
+
+function CongestionDot({ level }: { level: string }) {
+  const colors: Record<string, string> = {
+    low: "bg-emerald-500",
+    medium: "bg-amber-500",
+    high: "bg-red-500",
+  };
+  const labels: Record<string, string> = {
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+  };
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`h-2.5 w-2.5 rounded-full ${colors[level] || colors.low}`} />
+      <span className="text-xs font-medium">{labels[level] || level} congestion</span>
     </div>
   );
 }

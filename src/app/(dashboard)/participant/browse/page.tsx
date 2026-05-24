@@ -4,13 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { getEvents } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getSportEmoji, getSportLabel } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 import { SPORTS, type SportCategory } from "@/lib/types";
-import { Search } from "lucide-react";
+import { Search, Loader2, CalendarDays } from "lucide-react";
+
+const SPORT_DOT_COLORS: Record<SportCategory, string> = {
+  cricket: "bg-red-500",
+  badminton: "bg-green-500",
+  football: "bg-emerald-600",
+  f1: "bg-rose-600",
+  hockey: "bg-amber-600",
+  basketball: "bg-orange-500",
+  tennis: "bg-yellow-500",
+  aquatics: "bg-cyan-500",
+  combat: "bg-slate-500",
+  multi_sport: "bg-violet-500",
+};
 
 export default function BrowseEventsPage() {
   return (
@@ -73,6 +84,7 @@ function BrowseContent() {
           <Button
             variant={sportFilter === "all" ? "default" : "outline"}
             size="sm"
+            className="h-9"
             onClick={() => setSportFilter("all")}
           >
             All
@@ -82,9 +94,13 @@ function BrowseContent() {
               key={sport}
               variant={sportFilter === sport ? "default" : "outline"}
               size="sm"
+              className="h-9"
               onClick={() => setSportFilter(sport)}
             >
-              {getSportEmoji(sport)}
+              <span
+                className={`inline-block h-2 w-2 rounded-full mr-2 ${SPORT_DOT_COLORS[sport]}`}
+              />
+              {getSportLabel(sport)}
             </Button>
           ))}
         </div>
@@ -92,44 +108,53 @@ function BrowseContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : filteredEvents.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground">No events found</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 p-12 flex flex-col items-center text-center">
+          <CalendarDays className="h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-muted-foreground mb-4">No events found</p>
+          <Button
+            size="sm"
+            className="h-9"
+            variant="outline"
+            onClick={() => {
+              setSearch("");
+              setSportFilter("all");
+            }}
+          >
+            Clear filters
+          </Button>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents.map((event: any) => (
             <Link key={event.id} href={`/participant/event/${event.id}`}>
-              <Card className="hover:border-primary/30 shadow-sm hover:shadow-md transition-all cursor-pointer h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge>
-                      {getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)}
-                    </Badge>
-                    <Badge variant="outline">
-                      {event.venueCity}
-                    </Badge>
+              <div className="rounded-xl border border-border/50 p-4 hover:border-primary/30 transition-all cursor-pointer h-full">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-block h-2 w-2 rounded-full ${SPORT_DOT_COLORS[event.sportCategory as SportCategory] ?? "bg-muted-foreground"}`}
+                    />
+                    <span className="text-sm font-medium">
+                      {getSportLabel(event.sportCategory)}
+                    </span>
                   </div>
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                  <CardDescription>
-                    {event.venueName} · {event.date} at {event.time}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-muted-foreground">
-                    <p>
-                      {event.registeredCount || 0} / {event.capacity?.toLocaleString()} registered
-                    </p>
-                    {event.description && (
-                      <p className="mt-2 line-clamp-2">{event.description}</p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                  <span className="text-xs text-muted-foreground">{event.venueCity}</span>
+                </div>
+                <h3 className="text-base font-semibold mb-1">{event.title}</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {event.venueName} · {event.date} at {event.time}
+                </p>
+                <div className="text-sm text-muted-foreground">
+                  <p>
+                    {event.registeredCount || 0} / {event.capacity?.toLocaleString()} registered
+                  </p>
+                  {event.description && (
+                    <p className="mt-2 line-clamp-2">{event.description}</p>
+                  )}
+                </div>
+              </div>
             </Link>
           ))}
         </div>

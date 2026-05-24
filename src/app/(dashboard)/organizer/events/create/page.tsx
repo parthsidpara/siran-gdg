@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { SPORTS, type SportCategory, type Venue } from "@/lib/types";
-import { getSportLabel, getSportEmoji } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 
 export default function CreateEventPage() {
   return (
@@ -95,45 +94,42 @@ function CreateEventForm() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-semibold tracking-tight mb-6">Create New Event</h1>
+      <h1 className="text-2xl font-semibold tracking-tight mb-6">Create New Event</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <Card className="shadow-sm border-t-2 border-t-primary/15">
-          <CardHeader>
-            <CardTitle>Event Details</CardTitle>
-            <CardDescription>Basic information about your event</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="rounded-xl border border-border/50 p-4">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Event Details</h2>
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Event Title *</Label>
-              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              <Label htmlFor="title" className="text-xs font-medium">Event Title *</Label>
+              <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required className="h-10" />
             </div>
             <div className="space-y-2">
-              <Label>Sport Category *</Label>
+              <Label className="text-xs font-medium">Sport Category *</Label>
               <Select value={sportCategory} onValueChange={(v) => setSportCategory((v || "") as SportCategory)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select sport" />
                 </SelectTrigger>
                 <SelectContent>
                   {SPORTS.map((sport) => (
                     <SelectItem key={sport} value={sport}>
-                      {getSportEmoji(sport)} {getSportLabel(sport)}
+                      {getSportLabel(sport)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Venue *</Label>
+              <Label className="text-xs font-medium">Venue *</Label>
               <Select
                 value={selectedVenueId}
                 onValueChange={(v) => setSelectedVenueId(v || "")}
                 disabled={!sportCategory}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-10">
                   {selectedVenue ? (
-                    <span>{selectedVenue.name} ({selectedVenue.city}, {selectedVenue.capacity?.toLocaleString()})</span>
+                    <span className="text-sm">{selectedVenue.name} ({selectedVenue.city}, {selectedVenue.capacity?.toLocaleString()})</span>
                   ) : (
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {sportCategory ? "Select venue" : "Select sport first"}
                     </span>
                   )}
@@ -159,32 +155,33 @@ function CreateEventForm() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="date">Date *</Label>
-                <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+                <Label htmlFor="date" className="text-xs font-medium">Date *</Label>
+                <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="h-10" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="time">Time *</Label>
-                <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
+                <Label htmlFor="time" className="text-xs font-medium">Time *</Label>
+                <Input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} required className="h-10" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="capacity">Expected Capacity</Label>
+              <Label htmlFor="capacity" className="text-xs font-medium">Expected Capacity</Label>
               <Input
                 id="capacity"
                 type="number"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
                 placeholder={selectedVenue ? selectedVenue.capacity?.toString() : "Enter capacity"}
+                className="h-10"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="desc">Description</Label>
+              <Label htmlFor="desc" className="text-xs font-medium">Description</Label>
               <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Button type="submit" className="w-full cursor-pointer" disabled={loading}>
+        <Button type="submit" size="sm" className="w-full h-9 text-sm" disabled={loading}>
           {loading ? "Creating event..." : "Create Event"}
         </Button>
       </form>

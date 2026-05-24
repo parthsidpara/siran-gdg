@@ -5,11 +5,24 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { getRegistrationsByUser, getDocById } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getSportEmoji, getSportLabel } from "@/lib/sports";
-import { getCongestionEmoji, getCongestionLabel } from "@/lib/crowd";
+import { Button } from "@/components/ui/button";
+import { getSportLabel } from "@/lib/sports";
 import type { SportCategory } from "@/lib/types";
+import { Loader2, CalendarDays } from "lucide-react";
+
+const SPORT_DOT_COLORS: Record<SportCategory, string> = {
+  cricket: "bg-red-500",
+  badminton: "bg-green-500",
+  football: "bg-emerald-600",
+  f1: "bg-rose-600",
+  hockey: "bg-amber-600",
+  basketball: "bg-orange-500",
+  tennis: "bg-yellow-500",
+  aquatics: "bg-cyan-500",
+  combat: "bg-slate-500",
+  multi_sport: "bg-violet-500",
+};
 
 export default function MyEventsPage() {
   return (
@@ -45,21 +58,27 @@ function MyEventsContent() {
 
   return (
     <div>
-      <h1 className="text-3xl font-semibold tracking-tight mb-6">My Events</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-semibold tracking-tight mb-1">My Events</h1>
+        <p className="text-muted-foreground">Events you have registered for</p>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : registrations.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground mb-4">You haven&apos;t registered for any events yet</p>
-            <Link href="/participant/browse">
-              <Badge className="cursor-pointer hover:bg-primary/90 px-4 py-2">Browse Events</Badge>
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 p-12 flex flex-col items-center text-center">
+          <CalendarDays className="h-8 w-8 text-muted-foreground mb-3" />
+          <p className="text-muted-foreground mb-4">
+            You haven&apos;t registered for any events yet
+          </p>
+          <Link href="/participant/browse">
+            <Button size="sm" className="h-9">
+              Browse Events
+            </Button>
+          </Link>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {registrations.map((reg) => {
@@ -67,33 +86,35 @@ function MyEventsContent() {
             if (!event) return null;
             return (
               <Link key={reg.id} href={`/participant/event/${reg.eventId}`}>
-                <Card className="hover:border-primary/30 shadow-sm hover:shadow-md transition-all cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-1">
-                      <Badge>
-                        {getSportEmoji(event.sportCategory)}{" "}
+                <div className="rounded-xl border border-border/50 p-4 hover:border-primary/30 transition-all cursor-pointer h-full">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-block h-2 w-2 rounded-full ${SPORT_DOT_COLORS[event.sportCategory as SportCategory] ?? "bg-muted-foreground"}`}
+                      />
+                      <span className="text-sm font-medium">
                         {getSportLabel(event.sportCategory)}
-                      </Badge>
-                      <Badge variant="outline">{event.status}</Badge>
+                      </span>
                     </div>
-                    <CardTitle className="text-lg">{event.title}</CardTitle>
-                    <CardDescription>
-                      {event.venueName} · {event.date} at {event.time}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-sm space-y-1">
-                      <p>
-                        <span className="text-muted-foreground">Arrival:</span>{" "}
-                        <strong>{reg.arrivalWindow}</strong>
-                      </p>
-                      <p>
-                        <span className="text-muted-foreground">Gate:</span>{" "}
-                        <strong>{reg.assignedGate}</strong>
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
+                    <Badge variant="outline" className="text-xs">
+                      {event.status}
+                    </Badge>
+                  </div>
+                  <h3 className="text-base font-semibold mb-1">{event.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {event.venueName} · {event.date} at {event.time}
+                  </p>
+                  <div className="text-sm space-y-1">
+                    <p>
+                      <span className="text-muted-foreground">Arrival:</span>{" "}
+                      <strong>{reg.arrivalWindow}</strong>
+                    </p>
+                    <p>
+                      <span className="text-muted-foreground">Gate:</span>{" "}
+                      <strong>{reg.assignedGate}</strong>
+                    </p>
+                  </div>
+                </div>
               </Link>
             );
           })}

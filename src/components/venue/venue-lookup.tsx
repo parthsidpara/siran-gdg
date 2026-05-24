@@ -3,17 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { fullVenueLookup } from "@/lib/api/venues";
-import { getCircuitVenueImage } from "@/lib/api/ergast";
 import { suggestGatesForCircuit, suggestGatesForStadium, guessCity } from "@/lib/api/venues";
 import type { VenueEnrichment, ApiSearchResult } from "@/lib/api/types";
 import type { SportCategory, Gate } from "@/lib/types";
-import { getSportEmoji } from "@/lib/sports";
-import { Search, Database, Loader2, Check, MapPin, X } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Search, Database, Loader2, Check, MapPin } from "lucide-react";
 
 interface VenueLookupProps {
   onFillData: (data: {
@@ -121,113 +117,112 @@ export function VenueLookup({ onFillData }: VenueLookupProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Database className="h-4 w-4" /> Venue Data Lookup
-        </CardTitle>
-        <CardDescription>
+    <div className="rounded-xl border border-border/50 bg-card p-5 space-y-4">
+      <div className="space-y-1">
+        <h2 className="text-sm font-medium flex items-center gap-2">
+          <Database className="h-4 w-4 text-muted-foreground" /> Venue Data Lookup
+        </h2>
+        <p className="text-xs text-muted-foreground">
           Search global venue databases (Ergast F1, TheSportsDB, Wikidata) to auto-fill details
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search venue name (e.g. Wankhede, Monza, Eden Gardens)..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <Button onClick={handleSearch} disabled={searching || !query.trim()}>
-            {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-          </Button>
+        </p>
+      </div>
+
+      <div className="flex gap-2">
+        <Input
+          placeholder="Search venue name (e.g. Wankhede, Monza, Eden Gardens)..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="h-9"
+        />
+        <Button onClick={handleSearch} disabled={searching || !query.trim()} size="sm" className="h-9">
+          {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+        </Button>
+      </div>
+
+      {sources.length > 0 && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>Sources:</span>
+          {sources.map((s) => (
+            <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
+          ))}
         </div>
+      )}
 
-        {sources.length > 0 && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>Sources: </span>
-            {sources.map((s) => (
-              <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
-            ))}
+      {enrichment && enrichment.name && (
+        <div className="rounded-xl border border-border/50 bg-muted/40 p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">{enrichment.name}</span>
+              {enrichment.source && sourceBadge(enrichment.source)}
+            </div>
+            <Button
+              size="sm"
+              className="h-9"
+              onClick={handleApply}
+              disabled={appliedResult === enrichment.name}
+            >
+              {appliedResult === enrichment.name ? (
+                <span className="flex items-center gap-1"><Check className="h-3 w-3" /> Applied</span>
+              ) : (
+                "Apply Data"
+              )}
+            </Button>
           </div>
-        )}
-
-        {enrichment && enrichment.name && (
-          <div className="border rounded-lg p-3 bg-muted/30">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{enrichment.name}</span>
-                {enrichment.source && sourceBadge(enrichment.source)}
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+            {enrichment.city && (
+              <div className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" /> {enrichment.city}
+                {enrichment.country && `, ${enrichment.country}`}
               </div>
-              <Button
-                size="sm"
-                onClick={handleApply}
-                disabled={appliedResult === enrichment.name}
-              >
-                {appliedResult === enrichment.name ? (
-                  <><Check className="h-3 w-3 mr-1" /> Applied</>
-                ) : (
-                  "Apply Data"
-                )}
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-              {enrichment.city && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> {enrichment.city}
-                  {enrichment.country && `, ${enrichment.country}`}
-                </div>
-              )}
-              {enrichment.capacity ? (
-                <span>Capacity: {enrichment.capacity.toLocaleString()}</span>
-              ) : null}
-              {enrichment.sportTypes && enrichment.sportTypes.length > 0 && (
-                <span>
-                  Sports: {enrichment.sportTypes.map((s) => getSportEmoji(s as SportCategory)).join(" ")}
-                </span>
-              )}
-            </div>
-            {enrichment.description && (
-              <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                {enrichment.description}
-              </p>
+            )}
+            {enrichment.capacity ? (
+              <span>Capacity: {enrichment.capacity.toLocaleString()}</span>
+            ) : null}
+            {enrichment.sportTypes && enrichment.sportTypes.length > 0 && (
+              <span>Sports: {enrichment.sportTypes.join(", ")}</span>
             )}
           </div>
-        )}
+          {enrichment.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {enrichment.description}
+            </p>
+          )}
+        </div>
+      )}
 
-        {results.length > 0 && !enrichment && (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Search results:</p>
-            {results.slice(0, 5).map((r) => (
-              <div
-                key={`${r.source}-${r.id}`}
-                className="flex items-center justify-between p-2 border rounded hover:bg-muted/50 cursor-pointer"
-                onClick={() => handleApplyFromSearch(r)}
-              >
-                <div>
-                  <p className="text-sm font-medium">{r.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {r.city}, {r.country}
-                    {r.capacity > 0 && ` · ${r.capacity.toLocaleString()}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {sourceBadge(r.source)}
-                  <span className="text-muted-foreground text-xs">
-                    {r.sport !== "unknown" && getSportEmoji(r.sport as SportCategory)}
-                  </span>
-                </div>
+      {results.length > 0 && !enrichment && (
+        <div className="space-y-1.5">
+          <p className="text-xs text-muted-foreground">Search results:</p>
+          {results.slice(0, 5).map((r) => (
+            <div
+              key={`${r.source}-${r.id}`}
+              className="flex items-center justify-between p-3 rounded-xl border border-border/50 hover:bg-muted/40 cursor-pointer transition-colors"
+              onClick={() => handleApplyFromSearch(r)}
+            >
+              <div>
+                <p className="text-sm font-medium">{r.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {r.city}, {r.country}
+                  {r.capacity > 0 && ` &middot; ${r.capacity.toLocaleString()}`}
+                </p>
               </div>
-            ))}
-          </div>
-        )}
+              <div className="flex items-center gap-2">
+                {sourceBadge(r.source)}
+                <span className="text-muted-foreground text-xs">
+                  {r.sport !== "unknown" && r.sport}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-        {!searching && !enrichment && results.length === 0 && sources.length === 0 && query && (
-          <p className="text-xs text-muted-foreground text-center py-2">
-            No results found. Try a different search term.
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      {!searching && !enrichment && results.length === 0 && sources.length === 0 && query && (
+        <p className="text-xs text-muted-foreground text-center py-2">
+          No results found. Try a different search term.
+        </p>
+      )}
+    </div>
   );
 }

@@ -5,14 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { RoleGuard } from "@/components/shared/role-guard";
-import { getEventsByOrganizer, listenToQuery } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { listenToQuery } from "@/lib/firebase/firestore";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getSportEmoji, getSportLabel } from "@/lib/sports";
-import { getCongestionColor, getCongestionLevel, getCongestionEmoji } from "@/lib/crowd";
+import { getCongestionEmoji } from "@/lib/crowd";
 import { where } from "firebase/firestore";
-import type { SportCategory, CongestionLevel } from "@/lib/types";
+import { CalendarDays, Users, Trophy, ArrowRight, Loader2, Radar } from "lucide-react";
 
 export default function OrganizerDashboard() {
   return (
@@ -38,109 +37,139 @@ function DashboardContent() {
   }, [user]);
 
   const totalRegistrations = events.reduce((sum, e) => sum + (e.registeredCount || 0), 0);
+  const sportSet = [...new Set(events.map((e) => e.sportCategory))];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-8">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your events and crowd flow</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Overview of your events and crowd flow</p>
         </div>
-        <Button className="cursor-pointer" onClick={() => router.push("/organizer/events/create")}>Create Event</Button>
+        <Button size="sm" onClick={() => router.push("/organizer/events/create")}>
+          <CalendarDays className="mr-1.5 h-3.5 w-3.5" />
+          New Event
+        </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 mb-8">
-        <Card className="border-l-4 border-l-primary/70 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Events</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">{events.length}</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className="border-0 bg-muted/40">
+          <CardContent className="flex items-center gap-4 py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <CalendarDays className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-semibold tracking-tight">{events.length}</p>
+              <p className="text-xs text-muted-foreground">Total Events</p>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-l-4 border-l-primary/70 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Registrations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">{totalRegistrations}</p>
+        <Card className="border-0 bg-muted/40">
+          <CardContent className="flex items-center gap-4 py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Users className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-semibold tracking-tight">{totalRegistrations}</p>
+              <p className="text-xs text-muted-foreground">Registrations</p>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-l-4 border-l-primary/70 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Sport Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-1 flex-wrap">
-              {[...new Set(events.map((e) => e.sportCategory))].map((s: any) => (
-                <Badge key={s} variant="outline">{getSportEmoji(s)} {getSportLabel(s)}</Badge>
-              ))}
+        <Card className="border-0 bg-muted/40">
+          <CardContent className="flex items-center gap-4 py-5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Trophy className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-semibold tracking-tight">{sportSet.length}</p>
+              <p className="text-xs text-muted-foreground">Sport Categories</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <h2 className="text-lg font-medium mb-4">Your Events</h2>
+      <div>
+        <h2 className="text-sm font-medium text-muted-foreground mb-3">Your Events</h2>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
-        </div>
-      ) : events.length === 0 ? (
-        <Card className="shadow-sm">
-          <CardContent className="flex flex-col items-center py-12">
-            <p className="text-muted-foreground mb-4">No events created yet</p>
-            <Button onClick={() => router.push("/organizer/events/create")}>
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : events.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+            <Radar className="h-8 w-8 text-muted-foreground/50 mb-3" />
+            <p className="text-sm text-muted-foreground mb-4">No events created yet</p>
+            <Button size="sm" onClick={() => router.push("/organizer/events/create")}>
               Create Your First Event
             </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {events.map((event: any) => {
-            const perGateLoad = event.gateLoad || {};
-            return (
-              <Link key={event.id} href={`/organizer/events/${event.id}`}>
-                <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <Badge>{getSportEmoji(event.sportCategory)} {getSportLabel(event.sportCategory)}</Badge>
-                      <Badge variant={event.status === "live" ? "destructive" : event.status === "upcoming" ? "default" : "secondary"}>
-                        {event.status}
-                      </Badge>
-                    </div>
-                    <CardTitle className="mt-2">{event.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <p className="text-muted-foreground">
-                        {event.venueName} · {event.venueCity}
-                      </p>
-                      <p>
-                        {event.date} at {event.time}
-                      </p>
-                      <div className="flex items-center gap-4">
-                        <span>
-                          {event.registeredCount || 0} / {event.capacity} registered
-                        </span>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {events.map((event: any) => {
+              const gateLoad = event.gateLoad || {};
+              const fillRate = event.capacity ? Math.round(((event.registeredCount || 0) / event.capacity) * 100) : 0;
+              return (
+                <Link key={event.id} href={`/organizer/events/${event.id}`}>
+                  <div className="group flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-4 transition-all hover:border-border hover:bg-muted/30 hover:shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{getSportEmoji(event.sportCategory)}</span>
+                        <span className="text-xs font-medium text-muted-foreground">{getSportLabel(event.sportCategory)}</span>
                       </div>
-                      {Object.keys(perGateLoad).length > 0 && (
-                        <div className="flex gap-2 flex-wrap mt-2">
-                          {Object.entries(perGateLoad).map(([gate, level]: [string, any]) => (
-                            <Badge key={gate} variant="outline" className="text-xs">
-                              {gate}: {getCongestionEmoji(level)} {level}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+                      <StatusPill status={event.status} />
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+                    <h3 className="font-semibold tracking-tight leading-snug">{event.title}</h3>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span>{event.venueName}</span>
+                      <span className="text-border">·</span>
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium">{event.registeredCount || 0}</span>
+                        <span className="text-xs text-muted-foreground">/ {event.capacity}</span>
+                        <div className="ml-1 h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${fillRate}%` }} />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {Object.entries(gateLoad).slice(0, 3).map(([gate, level]: [string, any]) => (
+                          <span key={gate} className="text-xs text-muted-foreground" title={`${gate}: ${level}`}>
+                            {getCongestionEmoji(level)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  if (status === "live") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+        Live
+      </span>
+    );
+  }
+  if (status === "upcoming") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-accent/50 px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+        Upcoming
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+      Completed
+    </span>
   );
 }

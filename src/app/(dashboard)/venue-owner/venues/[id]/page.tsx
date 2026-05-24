@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/shared/role-guard";
 import { getDocById, updateDocById } from "@/lib/firebase/firestore";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getSportLabel, getSportEmoji } from "@/lib/sports";
+import { getSportLabel } from "@/lib/sports";
 import { enrichVenue } from "@/lib/api/venues";
 import { toast } from "sonner";
 import { Loader2, ExternalLink } from "lucide-react";
@@ -77,86 +76,80 @@ function VenueDetailContent() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold mb-1">{venue.name}</h1>
-          <p className="text-muted-foreground">{venue.city} · {venue.address}</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{venue.name}</h1>
+          <p className="text-muted-foreground text-sm">{venue.city} · {venue.address}</p>
         </div>
         <Button
           variant="outline"
           size="sm"
+          className="h-9"
           onClick={handleEnrich}
           disabled={enriching}
         >
           {enriching ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
           ) : (
-            <ExternalLink className="h-4 w-4 mr-1" />
+            <ExternalLink className="h-4 w-4 mr-1.5" />
           )}
           Enrich Data
         </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Capacity</span>
-              <span className="font-medium">{venue.capacity?.toLocaleString()}</span>
+        <div className="rounded-xl border border-border/50 p-5">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Details</h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Capacity</span>
+              <span className="font-medium text-sm">{venue.capacity?.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Surface</span>
-              <span className="font-medium">{venue.surface}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Surface</span>
+              <span className="font-medium text-sm">{venue.surface}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Status</span>
-              <Badge variant={venue.status === "available" ? "default" : "secondary"}>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground text-sm">Status</span>
+              <Badge variant={venue.status === "available" ? "default" : "secondary"} className="text-xs font-normal">
                 {venue.status}
               </Badge>
             </div>
             <div>
               <span className="text-muted-foreground text-sm">Sports</span>
-              <div className="flex gap-1 mt-1 flex-wrap">
+              <div className="flex gap-1.5 mt-1.5 flex-wrap">
                 {venue.sportTypes?.map((s: SportCategory) => (
-                  <Badge key={s} variant="outline">
-                    {getSportEmoji(s)} {getSportLabel(s)}
+                  <Badge key={s} variant="outline" className="text-xs font-normal">
+                    {getSportLabel(s)}
                   </Badge>
                 ))}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>Gates ({venue.gates?.length || 0})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {venue.gates?.map((g: Gate) => (
-                <div key={g.id} className="flex items-center gap-2 p-3 rounded-xl border bg-muted/20">
-                  <span className="font-medium text-sm">{g.label}</span>
-                  <Badge variant="secondary" className="text-xs">{g.zone}</Badge>
+        <div className="rounded-xl border border-border/50 p-5">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Gates ({venue.gates?.length || 0})</h2>
+          <div className="space-y-2">
+            {venue.gates?.map((g: Gate, i: number) => (
+              <div key={g.id} className="flex items-center gap-3 py-2">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium shrink-0">
+                  {i + 1}
                 </div>
-              ))}
-              {(!venue.gates || venue.gates.length === 0) && (
-                <p className="text-sm text-muted-foreground">No gates configured</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                <span className="font-medium text-sm">{g.label}</span>
+                <Badge variant="secondary" className="text-xs font-normal ml-auto">{g.zone}</Badge>
+              </div>
+            ))}
+            {(!venue.gates || venue.gates.length === 0) && (
+              <p className="text-sm text-muted-foreground">No gates configured</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {venue.description && (
-        <Card className="shadow-sm">
-          <CardHeader>
-            <CardTitle>About</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">{venue.description}</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-xl border border-border/50 p-5">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">About</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">{venue.description}</p>
+        </div>
       )}
     </div>
   );
