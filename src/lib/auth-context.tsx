@@ -27,8 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        const userRole = await getUserRole(firebaseUser.uid);
-        setRole(userRole);
+        try {
+          const userRole = await getUserRole(firebaseUser.uid);
+          setRole(userRole);
+        } catch {
+          setRole(null);
+        }
       } else {
         setRole(null);
       }

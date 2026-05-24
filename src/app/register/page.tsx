@@ -51,6 +51,10 @@ export default function RegisterPage() {
         toast.error(
           "Firebase Auth not enabled. Go to Firebase Console > Authentication > Sign-in method > Enable Email/Password."
         );
+      } else if (message.includes("permissions") || message.includes("permission")) {
+        toast.error(
+          "Firestore permissions blocked. Go to Firebase Console > Firestore > Rules and set allow read, write: if true;"
+        );
       } else {
         toast.error(message);
       }
