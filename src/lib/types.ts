@@ -44,16 +44,18 @@ export const SPORT_EMOJIS: Record<SportCategory, string> = {
 };
 
 export const CITIES = [
-  "Mumbai",
-  "Delhi",
-  "Bangalore",
-  "Chennai",
-  "Kolkata",
-  "Hyderabad",
-  "Ahmedabad",
-  "Pune",
-  "Jaipur",
-  "Lucknow",
+  "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata",
+  "Hyderabad", "Ahmedabad", "Pune", "Jaipur", "Lucknow",
+  "Chandigarh", "Indore", "Bhopal", "Nagpur", "Surat",
+  "Visakhapatnam", "Bhubaneswar", "Guwahati", "Ranchi", "Raipur",
+  "Kochi", "Thiruvananthapuram", "Patna", "Vadodara", "Ludhiana",
+  "Agra", "Nashik", "Kanpur", "Coimbatore", "Madurai",
+  "Mysore", "Mangalore", "Rajkot", "Jodhpur", "Udaipur",
+  "Varanasi", "Allahabad", "Dehradun", "Shimla", "Srinagar",
+  "Dharamshala", "Mohali", "Cuttack", "Gwalior", "Jamshedpur",
+  "Monza", "Silverstone", "Suzuka", "Sakhir", "Monte Carlo",
+  "Shanghai", "Baku", "Budapest", "São Paulo", "Mexico City",
+  "Abu Dhabi", "Melbourne", "Montreal", "Austin", "Barcelona",
 ] as const;
 
 export type City = (typeof CITIES)[number];
@@ -74,7 +76,7 @@ export interface Venue {
   name: string;
   sportTypes: SportCategory[];
   capacity: number;
-  city: City;
+  city: string;
   address: string;
   lat: number;
   lng: number;

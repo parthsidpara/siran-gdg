@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -40,10 +40,8 @@ function ChangeView({ center }: { center: [number, number] }) {
 
 export function VenueMap({ center, gates, gateLoad, assignedGate, className }: VenueMapProps) {
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const markMounted = useCallback(() => setMounted(true), []);
+  useEffect(() => { markMounted(); }, [markMounted]);
 
   if (!mounted) {
     return (
