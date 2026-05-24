@@ -33,6 +33,7 @@ const NAV_ITEMS: Record<UserRole, { label: string; href: string }[]> = {
   organizer: [
     { label: "Dashboard", href: "/organizer/dashboard" },
     { label: "Create Event", href: "/organizer/events/create" },
+    { label: "Sponsor Requests", href: "/organizer/sponsor-requests" },
   ],
   venue_owner: [
     { label: "My Venues", href: "/venue-owner/venues" },
@@ -40,6 +41,7 @@ const NAV_ITEMS: Record<UserRole, { label: string; href: string }[]> = {
   ],
   sponsor: [
     { label: "Browse Events", href: "/sponsor/browse" },
+    { label: "My Inquiries", href: "/sponsor/my-inquiries" },
   ],
 };
 

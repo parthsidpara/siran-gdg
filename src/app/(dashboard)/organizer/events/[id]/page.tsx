@@ -17,6 +17,17 @@ import {
   generateArrivalWindows,
 } from "@/lib/crowd";
 import { updateDocById } from "@/lib/firebase/firestore";
+import { broadcastInstruction, getInstructionsForEvent } from "@/lib/firebase/instructions";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function OrganizerEventDetail() {
@@ -33,6 +44,13 @@ function EventDetailContent() {
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [instructions, setInstructions] = useState<any[]>([]);
+  const [broadcastTitle, setBroadcastTitle] = useState("");
+  const [broadcastMsg, setBroadcastMsg] = useState("");
+  const [broadcastPriority, setBroadcastPriority] = useState("info");
+  const [broadcastType, setBroadcastType] = useState("general");
+  const [broadcastGate, setBroadcastGate] = useState("");
+  const [broadcasting, setBroadcasting] = useState(false);
 
   useEffect(() => {
     const unsub = listenToDoc("events", id as string, async (data) => {
@@ -50,6 +68,7 @@ function EventDetailContent() {
 
   useEffect(() => {
     getRegistrationsByEvent(id as string).then(setRegistrations);
+    getInstructionsForEvent(id as string).then(setInstructions);
   }, [id]);
 
   const updateGateLoad = async (gateId: string, load: string) => {
@@ -254,6 +273,132 @@ function EventDetailContent() {
               gates={venue.gates}
               gateLoad={gateLoad}
             />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Broadcast Instructions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Broadcast Instructions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input
+                  value={broadcastTitle}
+                  onChange={(e) => setBroadcastTitle(e.target.value)}
+                  placeholder="e.g., Parking Update for Gate A"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select value={broadcastPriority} onValueChange={(v) => setBroadcastPriority(v || "info")}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="info">Info</SelectItem>
+                      <SelectItem value="warning">Warning</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Select value={broadcastType} onValueChange={(v) => setBroadcastType(v || "general")}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="gate_change">Gate Change</SelectItem>
+                      <SelectItem value="crowd_alert">Crowd Alert</SelectItem>
+                      <SelectItem value="reminder">Reminder</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Message</Label>
+              <Textarea
+                value={broadcastMsg}
+                onChange={(e) => setBroadcastMsg(e.target.value)}
+                placeholder="Enter instruction message for participants..."
+                rows={3}
+              />
+            </div>
+            <Button
+              onClick={async () => {
+                if (!broadcastTitle.trim() || !broadcastMsg.trim()) {
+                  toast.error("Title and message required");
+                  return;
+                }
+                setBroadcasting(true);
+                try {
+                  await broadcastInstruction({
+                    eventId: id as string,
+                    organizerId: event.organizerId,
+                    title: broadcastTitle,
+                    message: broadcastMsg,
+                    priority: broadcastPriority,
+                    type: broadcastType,
+                  });
+                  toast.success("Instruction broadcast!");
+                  setBroadcastTitle("");
+                  setBroadcastMsg("");
+                  setInstructions(await getInstructionsForEvent(id as string));
+                } catch (err: unknown) {
+                  toast.error(err instanceof Error ? err.message : "Failed");
+                } finally {
+                  setBroadcasting(false);
+                }
+              }}
+              disabled={broadcasting}
+            >
+              {broadcasting ? "Broadcasting..." : "Broadcast Instruction"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Past Instructions */}
+      {instructions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sent Instructions ({instructions.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[...instructions].reverse().map((inst) => (
+                <div key={inst.id} className="border rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-sm">{inst.title}</span>
+                    <Badge
+                      variant={
+                        inst.priority === "urgent"
+                          ? "destructive"
+                          : inst.priority === "warning"
+                          ? "default"
+                          : "outline"
+                      }
+                      className="text-xs"
+                    >
+                      {inst.priority}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{inst.message}</p>
+                  <div className="flex gap-2 mt-2">
+                    <Badge variant="secondary" className="text-xs">{inst.type}</Badge>
+                    {inst.createdAt?.toDate && (
+                      <span className="text-xs text-muted-foreground">
+                        {inst.createdAt.toDate().toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

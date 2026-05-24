@@ -130,7 +130,13 @@ function CreateEventForm() {
                 disabled={!sportCategory}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={sportCategory ? "Select venue" : "Select sport first"} />
+                  {selectedVenue ? (
+                    <span>{selectedVenue.name} ({selectedVenue.city}, {selectedVenue.capacity?.toLocaleString()})</span>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      {sportCategory ? "Select venue" : "Select sport first"}
+                    </span>
+                  )}
                 </SelectTrigger>
                 <SelectContent>
                   {filteredVenues.map((v: any) => (
